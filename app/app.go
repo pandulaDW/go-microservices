@@ -3,14 +3,16 @@ package app
 import (
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Start registers the handler functions and starts the server
 func Start() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/greet", greet)
-	mux.HandleFunc("/customers", getAllCustomers)
-	err := http.ListenAndServe(":5000", mux)
+	router := mux.NewRouter()
+	router.HandleFunc("/greet", greet)
+	router.HandleFunc("/customers", getAllCustomers)
+	err := http.ListenAndServe(":5000", router)
 	if err != nil {
 		log.Fatal(err)
 	}

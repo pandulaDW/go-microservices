@@ -13,11 +13,12 @@ import (
 func Start() {
 	router := mux.NewRouter()
 
-	// create customer repository
-	stubRepo := domain.NewCustomerRepositoryStub()
+	// create customer repositories
+	// stubRepo := domain.NewCustomerRepositoryStub()
+	dbRepo := domain.NewCustomerRepositoryDb()
 
 	// create customer service
-	customerService := service.NewCustomerService(stubRepo)
+	customerService := service.NewCustomerService(dbRepo)
 
 	// create customer handler
 	customerHandler := CustomerHandler{customerService}

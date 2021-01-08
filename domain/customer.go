@@ -4,11 +4,11 @@ import "microservices.com/errors"
 
 // Customer struct
 type Customer struct {
-	ID          string
+	ID          string `db:"customer_id"`
 	Name        string
 	City        string
 	Zipcode     int
-	DateofBirth string
+	DateofBirth string `db:"date_of_birth"`
 	Status      string
 }
 

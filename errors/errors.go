@@ -4,8 +4,15 @@ import "net/http"
 
 // AppError defines the structure for application errors
 type AppError struct {
-	Code    int
-	Message string
+	Code    int    `json:",omitempty"`
+	Message string `json:"message"`
+}
+
+// AsMessage will return the error with the code
+func (e *AppError) AsMessage() *AppError {
+	return &AppError{
+		Message: e.Message,
+	}
 }
 
 // NewNotFoundError returns a not found error

@@ -25,6 +25,7 @@ func Start() {
 
 	// define routes
 	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet)
+	router.HandleFunc("/customers/{customer_id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet)
 
 	err := http.ListenAndServe(":5000", router)
 	if err != nil {

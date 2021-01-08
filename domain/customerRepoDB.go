@@ -17,7 +17,7 @@ type CustomerRepositoryDB struct {
 // FindAll returns all customers
 func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 
-	findAllSQL := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
+	findAllSQL := `SELECT customer_id, name, city, zipcode, date_of_birth, status FROM customers`
 	rows, err := d.client.Query(findAllSQL)
 	if err != nil {
 		log.Println("Error while querying customer table " + err.Error())
@@ -36,6 +36,21 @@ func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 	}
 
 	return customers, nil
+}
+
+// ByID returns a customer based on id
+func (d CustomerRepositoryDB) ByID(id string) (*Customer, error) {
+	customerSQL := `SELECT customer_id, name, city, zipcode, date_of_birth, status
+				   FROM customers WHERE customer_id = ?`
+
+	row := d.client.QueryRow(customerSQL, id)
+	var c Customer
+	err := row.Scan(&c.ID, &c.Name, &c.City, &c.Zipcode, &c.DateofBirth, &c.Status)
+	if err != nil {
+		log.Println("Error while scaning customer " + err.Error())
+		return nil, err
+	}
+	return &c, nil
 }
 
 // NewCustomerRepositoryDb is a factory function for the CustomerRepositoryDB

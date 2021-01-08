@@ -13,4 +13,5 @@ type Customer struct {
 // CustomerRepository defines a repository
 type CustomerRepository interface {
 	FindAll() ([]Customer, error)
+	ByID(string) (*Customer, error)
 }

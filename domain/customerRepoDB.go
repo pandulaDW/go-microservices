@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver package
+	"microservices.com/errors"
 )
 
 // CustomerRepositoryDB is the production repository, which contains
@@ -39,7 +40,7 @@ func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 }
 
 // ByID returns a customer based on id
-func (d CustomerRepositoryDB) ByID(id string) (*Customer, error) {
+func (d CustomerRepositoryDB) ByID(id string) (*Customer, *errors.AppError) {
 	customerSQL := `SELECT customer_id, name, city, zipcode, date_of_birth, status
 				   FROM customers WHERE customer_id = ?`
 
@@ -47,8 +48,11 @@ func (d CustomerRepositoryDB) ByID(id string) (*Customer, error) {
 	var c Customer
 	err := row.Scan(&c.ID, &c.Name, &c.City, &c.Zipcode, &c.DateofBirth, &c.Status)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.NewNotFoundError("Customer not found")
+		}
 		log.Println("Error while scaning customer " + err.Error())
-		return nil, err
+		return nil, errors.NewUnexpectedError("Unexpected database error")
 	}
 	return &c, nil
 }

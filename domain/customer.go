@@ -1,5 +1,7 @@
 package domain
 
+import "microservices.com/errors"
+
 // Customer struct
 type Customer struct {
 	ID          string
@@ -13,5 +15,5 @@ type Customer struct {
 // CustomerRepository defines a repository
 type CustomerRepository interface {
 	FindAll() ([]Customer, error)
-	ByID(string) (*Customer, error)
+	ByID(string) (*Customer, *errors.AppError)
 }

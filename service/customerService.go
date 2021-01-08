@@ -1,11 +1,14 @@
 package service
 
-import "microservices.com/domain"
+import (
+	"microservices.com/domain"
+	"microservices.com/errors"
+)
 
 // CustomerService defines a service
 type CustomerService interface {
 	GetAllCustomers() ([]domain.Customer, error)
-	GetCustomer(string) (*domain.Customer, error)
+	GetCustomer(string) (*domain.Customer, *errors.AppError)
 }
 
 // DefaultCustomerService is the implementation of the service
@@ -19,7 +22,7 @@ func (s DefaultCustomerService) GetAllCustomers() ([]domain.Customer, error) {
 }
 
 // GetCustomer returns a customer by id
-func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, error) {
+func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, *errors.AppError) {
 	return s.repo.ByID(id)
 }
 

@@ -5,21 +5,43 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
 	"microservices.com/domain"
 	"microservices.com/service"
 )
 
+func getDbClient() *sqlx.DB {
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbAddress := os.Getenv("DB_ADDRESS")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		dbUser, dbPassword, dbAddress, dbPort, dbName))
+	if err != nil {
+		panic(err)
+	}
+
+	client.SetConnMaxLifetime(time.Minute * 3)
+	client.SetMaxOpenConns(10)
+	client.SetMaxIdleConns(10)
+
+	return client
+}
+
 // Start registers the handler functions and starts the server
 func Start() {
 	router := mux.NewRouter()
+	dbClient := getDbClient()
 
-	// create customer repositories
+	// create repositories
 	// stubRepo := domain.NewCustomerRepositoryStub()
-	dbRepo := domain.NewCustomerRepositoryDb()
+	dbRepo := domain.NewCustomerRepositoryDb(dbClient)
 
-	// create customer service
+	// create services
 	customerService := service.NewCustomerService(dbRepo)
 
 	// create customer handler

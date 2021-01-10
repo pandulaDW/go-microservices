@@ -2,9 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver package
 	"github.com/jmoiron/sqlx"
@@ -57,21 +54,6 @@ func (d CustomerRepositoryDB) ByID(id string) (*Customer, *errors.AppError) {
 }
 
 // NewCustomerRepositoryDb is a factory function for the CustomerRepositoryDB
-func NewCustomerRepositoryDb() CustomerRepositoryDB {
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbAddress := os.Getenv("DB_ADDRESS")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
-	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		dbUser, dbPassword, dbAddress, dbPort, dbName))
-	if err != nil {
-		panic(err)
-	}
-
-	client.SetConnMaxLifetime(time.Minute * 3)
-	client.SetMaxOpenConns(10)
-	client.SetMaxIdleConns(10)
-
-	return CustomerRepositoryDB{client}
+func NewCustomerRepositoryDb(dbClient *sqlx.DB) CustomerRepositoryDB {
+	return CustomerRepositoryDB{dbClient}
 }

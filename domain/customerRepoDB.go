@@ -2,6 +2,8 @@ package domain
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver package
@@ -56,7 +58,13 @@ func (d CustomerRepositoryDB) ByID(id string) (*Customer, *errors.AppError) {
 
 // NewCustomerRepositoryDb is a factory function for the CustomerRepositoryDB
 func NewCustomerRepositoryDb() CustomerRepositoryDB {
-	client, err := sqlx.Open("mysql", "root:my-secret-pw@tcp(192.168.99.100:3306)/banking")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbAddress := os.Getenv("DB_ADDRESS")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		dbUser, dbPassword, dbAddress, dbPort, dbName))
 	if err != nil {
 		panic(err)
 	}

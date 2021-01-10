@@ -1,8 +1,10 @@
 package app
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"microservices.com/domain"
@@ -28,7 +30,9 @@ func Start() {
 	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet).Queries("{status:active}", "{status:inactive}")
 	router.HandleFunc("/customers/{customer_id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet)
 
-	err := http.ListenAndServe(":5000", router)
+	serverAddress := fmt.Sprintf("%s:%s", os.Getenv("ADDRESS"), os.Getenv("PORT"))
+
+	err := http.ListenAndServe(serverAddress, router)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -48,6 +48,22 @@ func commitTransaction(tx *sqlx.Tx, t *Transaction) *errors.AppError {
 	return nil
 }
 
+func updateAccount(tx *sqlx.Tx, t *Transaction) *errors.AppError {
+	if t.TransactionType == "withdraw" && t.Balance < t.Amount {
+		return errors.NewValidationError("Withdrawal amount cannot be larger than the balance")
+	}
+
+	sqlUpdate := `UPDATE accounts SET amount = ? WHERE account_id = ?`
+
+	_, err := tx.Exec(sqlUpdate, t.Balance, t.AccountID)
+	if err != nil {
+		logger.Error("Error while updating the account: " + err.Error())
+		return errors.NewUnexpectedError("Unexpected error from database")
+	}
+
+	return nil
+}
+
 // Transact will withdraw or deposit the given amount from the DB account
 func (r TransactionRepoDB) Transact(t *Transaction) (*Transaction, *errors.AppError) {
 	tx, err := r.client.Beginx()
@@ -71,6 +87,11 @@ func (r TransactionRepoDB) Transact(t *Transaction) (*Transaction, *errors.AppEr
 		t.Balance = *balance - t.Amount
 	} else {
 		t.Balance = *balance + t.Amount
+	}
+
+	appError = updateAccount(tx, t)
+	if appError != nil {
+		return nil, appError
 	}
 
 	err = tx.Commit()

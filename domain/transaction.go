@@ -14,6 +14,5 @@ type Transaction struct {
 
 // TransactionRepository interface defines transaction methods
 type TransactionRepository interface {
-	// Withdrawal(amount float64) (*Transaction, *errors.AppError)
-	Deposit(t *Transaction) (*Transaction, *errors.AppError)
+	Transact(t *Transaction) (*Transaction, *errors.AppError)
 }

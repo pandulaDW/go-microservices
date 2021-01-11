@@ -26,7 +26,7 @@ func (h TransactionHandler) Deposit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, appError := h.service.NewDeposit(request)
+	transaction, appError := h.service.NewTransaction(request)
 	if appError != nil {
 		writeResponse(w, appError.Code, appError.AsMessage())
 		return

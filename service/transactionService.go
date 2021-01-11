@@ -10,16 +10,16 @@ import (
 
 // TransactionService defines methods in the transaction service object
 type TransactionService interface {
-	NewDeposit(req dto.TransactionRequest) (*dto.TransactionResponse, *errors.AppError)
+	NewTransaction(req dto.TransactionRequest) (*dto.TransactionResponse, *errors.AppError)
 }
 
 // DefaultTransactionService implements TransactionService
 type DefaultTransactionService struct {
-	repo domain.TransactionRepoDB
+	repo domain.TransactionRepository
 }
 
-// NewDeposit implements deposit method of TransactionService
-func (s DefaultTransactionService) NewDeposit(req dto.TransactionRequest) (*dto.TransactionResponse, *errors.AppError) {
+// NewTransaction implements deposit method of TransactionService
+func (s DefaultTransactionService) NewTransaction(req dto.TransactionRequest) (*dto.TransactionResponse, *errors.AppError) {
 	err := req.Validate()
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (s DefaultTransactionService) NewDeposit(req dto.TransactionRequest) (*dto.
 		TransactionDate: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	newTransaction, err := s.repo.Deposit(&transaction)
+	newTransaction, err := s.repo.Transact(&transaction)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +46,6 @@ func (s DefaultTransactionService) NewDeposit(req dto.TransactionRequest) (*dto.
 }
 
 // NewTransactionService creates the default service and injects repository
-func NewTransactionService(repository domain.TransactionRepoDB) DefaultTransactionService {
+func NewTransactionService(repository domain.TransactionRepository) DefaultTransactionService {
 	return DefaultTransactionService{repository}
 }

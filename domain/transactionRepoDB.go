@@ -14,11 +14,6 @@ type TransactionRepoDB struct {
 	client *sqlx.DB
 }
 
-// // Withdrawal will withdraw the given amount from the DB account
-// func (t TransactionRepoDB) Withdrawal(amount float64) (Transaction, *errors.AppError) {
-
-// }
-
 func getAccountBalance(tx *sqlx.Tx, id string) (*float64, *errors.AppError) {
 	accountSQL := `SELECT account_id, amount FROM accounts WHERE account_id = ?`
 	var a Account
@@ -33,9 +28,30 @@ func getAccountBalance(tx *sqlx.Tx, id string) (*float64, *errors.AppError) {
 	return &a.Amount, nil
 }
 
-// Deposit will withdraw the given amount from the DB account
-func (r *TransactionRepoDB) Deposit(t *Transaction) (*Transaction, *errors.AppError) {
+func commitTransaction(tx *sqlx.Tx, t *Transaction) *errors.AppError {
+	sqlInsert := `INSERT INTO transactions 
+	(account_id, amount, transaction_type, transaction_date) values (?, ?, ?, ?)`
+
+	result, err := tx.Exec(sqlInsert, t.AccountID, t.Amount, t.TransactionType, t.TransactionDate)
+	if err != nil {
+		logger.Error("Error while creating new account: " + err.Error())
+		return errors.NewUnexpectedError("Unexpected error from database")
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		logger.Error("Error while getting last insert id for new account: " + err.Error())
+		return errors.NewUnexpectedError("Unexpected error from database")
+	}
+
+	t.TransactionID = strconv.FormatInt(id, 10)
+	return nil
+}
+
+// Transact will withdraw or deposit the given amount from the DB account
+func (r TransactionRepoDB) Transact(t *Transaction) (*Transaction, *errors.AppError) {
 	tx, err := r.client.Beginx()
+
 	if err != nil {
 		logger.Error("Error while initializing a transaction: " + err.Error())
 		return nil, errors.NewUnexpectedError("Unexpected error from database")
@@ -43,27 +59,26 @@ func (r *TransactionRepoDB) Deposit(t *Transaction) (*Transaction, *errors.AppEr
 
 	balance, appError := getAccountBalance(tx, t.AccountID)
 	if appError != nil {
-		logger.Error(appError.Message)
 		return nil, appError
 	}
 
-	sqlInsert := `INSERT INTO transactions 
-	(account_id, amount, transaction_type, transaction_date) values (?, ?, ?, ?)`
+	appError = commitTransaction(tx, t)
+	if appError != nil {
+		return nil, appError
+	}
 
-	result, err := tx.Exec(sqlInsert, t.AccountID, t.Amount, t.TransactionType, t.TransactionDate)
+	if t.TransactionType == "withdraw" {
+		t.Balance = *balance - t.Amount
+	} else {
+		t.Balance = *balance + t.Amount
+	}
+
+	err = tx.Commit()
 	if err != nil {
-		logger.Error("Error while creating new account: " + err.Error())
+		logger.Error("Error while committing the transaction: " + err.Error())
 		return nil, errors.NewUnexpectedError("Unexpected error from database")
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		logger.Error("Error while getting last insert id for new account: " + err.Error())
-		return nil, errors.NewUnexpectedError("Unexpected error from database")
-	}
-
-	t.TransactionID = strconv.FormatInt(id, 10)
-	t.Balance = *balance + t.Amount
 	return t, nil
 }
 

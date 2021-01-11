@@ -1,6 +1,9 @@
 package domain
 
-import "microservices.com/errors"
+import (
+	"microservices.com/dto"
+	"microservices.com/errors"
+)
 
 // Account defines the account db object
 type Account struct {
@@ -10,6 +13,11 @@ type Account struct {
 	AccountType string
 	Amount      float64
 	Status      string
+}
+
+// ToNewAccountResponseDTO converts the account object to the response dto
+func (a Account) ToNewAccountResponseDTO() *dto.NewAccountResponse {
+	return &dto.NewAccountResponse{AccountID: a.AccountID}
 }
 
 // AccountRepository interface defines account repo methods

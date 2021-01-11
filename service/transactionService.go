@@ -39,7 +39,7 @@ func (s DefaultTransactionService) NewDeposit(req dto.TransactionRequest) (*dto.
 
 	transactionRes := dto.TransactionResponse{
 		TransactionID:  newTransaction.TransactionID,
-		UpdatedBalance: newTransaction.Amount,
+		UpdatedBalance: newTransaction.Balance,
 	}
 
 	return &transactionRes, nil

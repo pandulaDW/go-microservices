@@ -57,7 +57,7 @@ func Start() {
 	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet).Queries("{status:active}", "{status:inactive}")
 	router.HandleFunc("/customers/{customer_id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet)
 	router.HandleFunc("/customers/{customer_id:[0-9]+}/account", accountHandler.NewAccount).Methods(http.MethodPost)
-	router.HandleFunc("/customers/{customer_id:[0-9]+}/transaction", transactionHandler.Deposit).Methods(http.MethodPost)
+	router.HandleFunc("/customers/{customer_id:[0-9]+}/account/{account_id:[0-9]+}/transaction", transactionHandler.Deposit).Methods(http.MethodPost)
 
 	serverAddress := fmt.Sprintf("%s:%s", os.Getenv("ADDRESS"), os.Getenv("PORT"))
 

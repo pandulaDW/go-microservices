@@ -7,11 +7,11 @@ import (
 
 // Account defines the account db object
 type Account struct {
-	AccountID   string
+	AccountID   string `db:"account_id"`
 	CustomerID  string
 	OpeningDate string
 	AccountType string
-	Amount      float64
+	Amount      float64 `db:"amount"`
 	Status      string
 }
 

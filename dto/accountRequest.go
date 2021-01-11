@@ -8,7 +8,7 @@ import (
 
 // NewAccountRequest defines the request body for an account request
 type NewAccountRequest struct {
-	CustomerID  string  `json:"customer_id"`
+	CustomerID  string
 	AccountType string  `json:"account_type"`
 	Amount      float64 `json:"amount"`
 }

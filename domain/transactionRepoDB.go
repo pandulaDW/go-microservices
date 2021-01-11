@@ -38,3 +38,8 @@ func (r *TransactionRepoDB) Deposit(t *Transaction) (*Transaction, *errors.AppEr
 	t.TransactionID = strconv.FormatInt(id, 10)
 	return t, nil
 }
+
+// NewTransactionRepoDB will create a new TransactionRepoDB
+func NewTransactionRepoDB(client *sqlx.DB) TransactionRepoDB {
+	return TransactionRepoDB{client: client}
+}

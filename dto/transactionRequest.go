@@ -5,7 +5,8 @@ import "microservices.com/errors"
 // TransactionRequest defines the shape of the transaction request body
 type TransactionRequest struct {
 	Amount          float64 `json:"amount"`
-	TransactionType string  `json:"transaction_type"`
+	AccountID       string
+	TransactionType string `json:"transaction_type"`
 }
 
 // Validate will validate the request object
